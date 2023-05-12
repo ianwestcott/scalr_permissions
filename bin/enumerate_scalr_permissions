@@ -1,0 +1,162 @@
+#! /usr/bin/env python
+
+"""
+Output an organized list of Scalr's permissions by scope
+
+Required environment variables:
+    SCALR_HOSTNAME  The full hostname of your Scalr base URL,
+                    e.g. example.scalr.io
+    SCALR_TOKEN     A valid Scalr API token
+
+Usage:
+    enumerate_scalr_permissions (-h | --help)
+    enumerate_scalr_permissions all [--markdown]
+    enumerate_scalr_permissions by-scope [--scope=<scope>] [--markdown]
+    enumerate_scalr_permissions by-role [--role=<role>] [--markdown]
+    enumerate_scalr_permissions list-scopes
+    enumerate_scalr_permissions list-system-roles
+
+Options:
+    -h --help          Show this help text and exit
+    --scope=<scope>    Scope name to filter by
+    --role=<role>      Role name to filter by [default: system]
+    --markdown         Output GitHub-flavored Markdown instead of ASCII tables
+"""
+
+import os
+import requests
+from docopt import docopt
+from terminaltables import AsciiTable, GithubFlavoredMarkdownTable
+
+SCALR_SCOPES = ["global-scope", "account", "environment", "workspace"]
+
+SCALR_HOSTNAME = os.environ["SCALR_HOSTNAME"]
+SCALR_TOKEN = os.environ["SCALR_TOKEN"]
+
+
+def get_permissions_list():
+    perms_response = requests.get(
+        f"https://{SCALR_HOSTNAME}/api/iacp/v3/permissions",
+        headers={
+            "Authorization": f"Bearer {SCALR_TOKEN}",
+            "Accept": "application/vnd.api+json",
+            "Prefer": "profile=preview"
+        }).json()
+    return perms_response['data']
+
+
+def get_role_list(role_name=None, system=False, names_only=False):
+    roles_response = requests.get(
+        f"https://{SCALR_HOSTNAME}/api/iacp/v3/roles",
+        headers={
+            "Authorization": f"Bearer {SCALR_TOKEN}",
+            "Accept": "application/vnd.api+json",
+            "Prefer": "profile=preview"
+        }).json()
+    roles = roles_response['data']
+
+    role_list = {}
+    for role in roles:
+
+        # skip non-system roles if requested
+        if system is True and role['attributes']['is-system'] is False:
+            continue
+        # if a role was specified, skip all the others
+        if (role_name is not None and
+                not role['attributes']['name'] == role_name):
+            continue
+
+        # if names_only was specified, don't collect permissions
+        if names_only is True:
+            role_list[role['attributes']['name']] = None
+        # otherwise return role name and permissions
+        else:
+            role_permissions = []
+            for role_perm in role['relationships']['permissions']['data']:
+                role_permissions.append(role_perm['id'])
+
+            role_list[role['attributes']['name']] = role_permissions
+
+    return role_list
+
+
+def print_table(data, header, fmt="markdown"):
+    if fmt == "terminal":
+        table = AsciiTable([header] + data)
+    elif fmt == "markdown":
+        table = GithubFlavoredMarkdownTable([header] + data)
+
+    print(table.table)
+
+
+def print_permissions_list(permissions, scope=None):
+    perms_list = []
+    header = ["Permission", "Description"]
+    for permission in permissions:
+        if (scope is not None and
+                scope not in permission['attributes']['applicable-scopes']):
+            continue
+
+        perms_list.append([f"`{permission['id']}`",
+                           permission['attributes']['description']])
+
+    print_table(perms_list, header)
+
+
+def main(args):
+
+    # if only listing scopes or system roles, print them and exit
+    if args['list-scopes']:
+        for scope in SCALR_SCOPES:
+            print(scope)
+        exit()
+    elif args['list-system-roles']:
+        system_roles = get_role_list(system=True, names_only=True)
+        for role in system_roles.keys():
+            print(role)
+        exit()
+
+    # print a list of roles and their permissions
+    if args['by-role']:
+
+        print("# Scalr Permissions By Role\n")
+        # only system roles if specified
+        if args['--role'] == 'system':
+            role_list = get_role_list(role_name=None,
+                                      system=True)
+        elif args['--role'] == 'all':
+            role_list = get_role_list()
+        else:
+            role_list = get_role_list(role_name=args['--role'])
+
+        for (role_name, role_perms) in role_list.items():
+            print(f"## Permissions for role `{role_name}`\n")
+            for perm in role_perms:
+                print(f"- `{perm}`")
+            print("")
+        exit()
+
+    # get a list of all permissions from the Scalr API
+    permissions = get_permissions_list()
+
+    if args['all']:
+
+        print("# Scalr Permissions\n")
+        print_permissions_list(permissions)
+
+    if args['by-scope']:
+
+        print("# Scalr Permissions By Scope\n")
+        if args['--scope']:
+            scopes = [args['--scope']]
+        else:
+            scopes = SCALR_SCOPES
+
+        for scope in scopes:
+            print(f"## Permissions applicable to scope `{scope}`\n")
+            print_permissions_list(permissions, scope=scope)
+            print("")
+
+
+if __name__ == "__main__":
+    main(docopt(__doc__))
