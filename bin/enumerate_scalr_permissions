@@ -28,7 +28,7 @@ import requests
 from docopt import docopt
 from terminaltables import AsciiTable, GithubFlavoredMarkdownTable
 
-SCALR_SCOPES = ["global-scope", "account", "environment", "workspace"]
+SCALR_SCOPES = ["account", "environment", "workspace"]
 
 SCALR_HOSTNAME = os.environ["SCALR_HOSTNAME"]
 SCALR_TOKEN = os.environ["SCALR_TOKEN"]

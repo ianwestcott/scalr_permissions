@@ -9,6 +9,7 @@
 | `*:delete`                          | None                                                                                                                                                                          |
 | `*:read`                            | None                                                                                                                                                                          |
 | `*:update`                          | None                                                                                                                                                                          |
+| `plans:*`                           | None                                                                                                                                                                          |
 | `plans:read-json-output`            | Allows users to read the plain output of the runs plan in json format. Note that a plan could contain sensitive data. Can be granted at any scope.                            |
 | `policy-checks:*`                   | None                                                                                                                                                                          |
 | `policy-checks:download-mocks`      | Allows users to read the policy input for a given run. This input is used for a policy evaluation. All sensitive data in the input is sanitized. Can be granted at any scope. |
