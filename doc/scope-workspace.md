@@ -34,6 +34,7 @@
 | `workspaces:*`                           | None                                                                                                                                                                          |
 | `workspaces:delete`                      | Allows users to delete workspaces. Can be granted at any scope.                                                                                                               |
 | `workspaces:link-provider-configuration` | Allows to manage provider configuration links for workspaces. Can be granted at any scope.                                                                                    |
+| `workspaces:link-ssh-key`                | None                                                                                                                                                                          |
 | `workspaces:lock`                        | Allows users to lock workspaces. Can be granted at any scope.                                                                                                                 |
 | `workspaces:read`                        | Allows users to read workspaces. Can be granted at any scope.                                                                                                                 |
 | `workspaces:set-access-policies`         | Allows users to set access policies at the workspace level. Can be granted at any scope.                                                                                      |
