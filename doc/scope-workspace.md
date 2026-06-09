@@ -9,6 +9,7 @@
 | `*:delete`                               | None                                                                                                                                                                          |
 | `*:read`                                 | None                                                                                                                                                                          |
 | `*:update`                               | None                                                                                                                                                                          |
+| `environments:read-runs-queue`           | Allows users to access the environments runs queue. Must be granted at the account or environment scope.                                                                      |
 | `plans:*`                                | None                                                                                                                                                                          |
 | `plans:read-json-output`                 | Allows users to read the plain output of the runs plan in json format. Note that a plan could contain sensitive data. Can be granted at any scope.                            |
 | `policy-checks:*`                        | None                                                                                                                                                                          |
@@ -18,7 +19,7 @@
 | `runs-queue:read`                        | Allows users to read the runs queue. Granted at the account level allows to read the queue for the account.                                                                   |
 | `runs:*`                                 | None                                                                                                                                                                          |
 | `runs:apply`                             | Allows users to approve runs that required manual confirmation. Can be granted at any scope.                                                                                  |
-| `runs:cancel`                            | Allows users to cancel runs. Can be granted at any scope.                                                                                                                     |
+| `runs:cancel`                            | Allows users to discard and cancel runs. Can be granted at any scope.                                                                                                         |
 | `runs:create`                            | Allows users to create runs. Can be granted at any scope.                                                                                                                     |
 | `runs:create-configuration-changes`      | Allows users to trigger runs that generates additional run artifacts.                                                                                                         |
 | `software-versions:read`                 | Allows users to read the Terraform and OPA versions. Required, if a user has ability to create/update workspaces or policy groups. Must be granted at the account scope.      |

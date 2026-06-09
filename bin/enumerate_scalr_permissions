@@ -37,6 +37,7 @@ SCALR_TOKEN = os.environ["SCALR_TOKEN"]
 def get_permissions_list():
     perms_response = requests.get(
         f"https://{SCALR_HOSTNAME}/api/iacp/v3/permissions",
+        verify=False,
         headers={
             "Authorization": f"Bearer {SCALR_TOKEN}",
             "Accept": "application/vnd.api+json",
@@ -48,6 +49,7 @@ def get_permissions_list():
 def get_role_list(role_name=None, system=False, names_only=False):
     roles_response = requests.get(
         f"https://{SCALR_HOSTNAME}/api/iacp/v3/roles",
+        verify=False,
         headers={
             "Authorization": f"Bearer {SCALR_TOKEN}",
             "Accept": "application/vnd.api+json",
